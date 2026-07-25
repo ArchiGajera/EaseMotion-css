@@ -1,0 +1,287 @@
+/* ============================================================
+   EaseMotion CSS — stepper.css
+   Animated Stepper / Step Indicator Component
+   ============================================================ */
+
+/* ── Usage Example ───────────────────────────────────────────
+<div class="ease-stepper">
+  <div class="ease-stepper__step ease-stepper__step--completed" tabindex="0">
+    Step 1
+  </div>
+  <div class="ease-stepper__connector"></div>
+  <div class="ease-stepper__step ease-stepper__step--active" aria-current="step" tabindex="0">
+    Step 2
+  </div>
+  <div class="ease-stepper__connector"></div>
+  <div class="ease-stepper__step ease-stepper__step--upcoming" tabindex="0">
+    Step 3
+  </div>
+</div>
+──────────────────────────────────────────────────────────── */
+
+.ease-stepper {
+  /* ── CSS Variables ─────────────────────────────────────── */
+  --ease-step-color-completed: var(--ease-color-success, #22c55e);
+  --ease-step-color-active:    var(--ease-color-primary, #6c63ff);
+  --ease-step-color-upcoming:  var(--ease-color-neutral-300, #cbd5e1);
+  --ease-step-size:            2.25rem; /* 36px */
+  --ease-step-connector-duration: var(--ease-speed-slow, 600ms);
+
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  position: relative;
+  counter-reset: step-counter;
+  gap: var(--ease-space-3, 0.75rem);
+}
+
+/* ── Step Container ────────────────────────────────────────── */
+.ease-stepper__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  text-align: center;
+  flex-shrink: 0;
+  gap: var(--ease-space-2, 0.5rem);
+  counter-increment: step-counter;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--ease-font-sans, system-ui, -apple-system, sans-serif);
+  font-size: var(--ease-text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--ease-color-text, #1e293b);
+  outline: none;
+  min-width: calc(var(--ease-step-size) * 2.2);
+  transition: color var(--ease-speed-fast, 150ms) var(--ease-ease, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+/* Accessible Focus Ring */
+.ease-stepper__step:focus-visible {
+  outline: 2px solid var(--ease-step-color-active);
+  outline-offset: 4px;
+  border-radius: var(--ease-radius-md, 0.5rem);
+}
+
+/* ── Step Indicator Circle ─────────────────────────────────── */
+.ease-stepper__step::before {
+  content: counter(step-counter);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ease-step-size);
+  height: var(--ease-step-size);
+  border-radius: var(--ease-radius-full, 9999px);
+  border: 2px solid var(--ease-step-color-upcoming);
+  background-color: var(--ease-color-surface, #ffffff);
+  color: var(--ease-color-muted, #64748b);
+  font-size: var(--ease-text-sm, 0.875rem);
+  font-weight: 600;
+  transition:
+    border-color     var(--ease-speed-medium, 300ms) var(--ease-ease, cubic-bezier(0.4, 0, 0.2, 1)),
+    background-color var(--ease-speed-medium, 300ms) var(--ease-ease, cubic-bezier(0.4, 0, 0.2, 1)),
+    color            var(--ease-speed-medium, 300ms) var(--ease-ease, cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow       var(--ease-speed-medium, 300ms) var(--ease-ease, cubic-bezier(0.4, 0, 0.2, 1));
+  box-sizing: border-box;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+/* ── Checkmark Icon (Completed Step) ───────────────────────── */
+.ease-stepper__step::after {
+  content: '';
+  position: absolute;
+  box-sizing: border-box;
+  width: calc(var(--ease-step-size) * 0.35);
+  height: calc(var(--ease-step-size) * 0.18);
+  border-left: 2.5px solid #ffffff;
+  border-bottom: 2.5px solid #ffffff;
+  transform-origin: center;
+  opacity: 0;
+  z-index: 2;
+
+  /* Default horizontal centering on the circle */
+  top: calc(var(--ease-step-size) / 2);
+  left: 50%;
+  transform: translate(-50%, -65%) rotate(-45deg) scale(0);
+
+  transition:
+    transform var(--ease-speed-medium, 300ms) var(--ease-ease-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)),
+    opacity   var(--ease-speed-medium, 300ms) var(--ease-ease, cubic-bezier(0.4, 0, 0.2, 1));
+  pointer-events: none;
+}
+
+/* ── States ────────────────────────────────────────────────── */
+
+/* Completed State */
+.ease-stepper__step--completed::before {
+  border-color: var(--ease-step-color-completed);
+  background-color: var(--ease-step-color-completed);
+  color: transparent; /* Hides the numeric step counter */
+}
+
+.ease-stepper__step--completed::after {
+  opacity: 1;
+  transform: translate(-50%, -65%) rotate(-45deg) scale(1);
+}
+
+.ease-stepper__step--completed {
+  color: var(--ease-step-color-completed);
+}
+
+/* Active State */
+.ease-stepper__step--active::before,
+.ease-stepper__step[aria-current="step"]::before {
+  border-color: var(--ease-step-color-active);
+  color: var(--ease-step-color-active);
+  background-color: var(--ease-color-surface, #ffffff);
+  font-weight: 700;
+  animation: ease-stepper-pulse 2s infinite;
+}
+
+.ease-stepper__step--active,
+.ease-stepper__step[aria-current="step"] {
+  color: var(--ease-step-color-active);
+  font-weight: 600;
+}
+
+/* Upcoming State */
+.ease-stepper__step--upcoming::before {
+  border-color: var(--ease-step-color-upcoming);
+  color: var(--ease-color-muted, #64748b);
+  background-color: var(--ease-color-surface, #ffffff);
+}
+
+.ease-stepper__step--upcoming {
+  color: var(--ease-color-muted, #64748b);
+}
+
+/* ── Connector Line ────────────────────────────────────────── */
+.ease-stepper__connector {
+  flex-grow: 1;
+  height: 4px;
+  background-color: var(--ease-step-color-upcoming);
+  border-radius: var(--ease-radius-full, 9999px);
+  margin-top: calc(var(--ease-step-size) / 2 - 2px);
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+  transition: background-color var(--ease-speed-medium, 300ms) var(--ease-ease, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.ease-stepper__connector::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background-color: var(--ease-step-color-completed);
+  transition: width var(--ease-step-connector-duration) var(--ease-ease, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+/* Sibling combinator to automatically fill completed connectors */
+.ease-stepper__step--completed + .ease-stepper__connector::after {
+  width: 100%;
+}
+
+/* ── Vertical Layout ───────────────────────────────────────── */
+.ease-stepper--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.ease-stepper--vertical .ease-stepper__step {
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  min-width: auto;
+  gap: var(--ease-space-3, 0.75rem);
+  padding: var(--ease-space-1, 0.25rem) 0;
+}
+
+/* Reposition checkmark for vertical layout */
+.ease-stepper--vertical .ease-stepper__step::after {
+  left: calc(var(--ease-step-size) / 2);
+  top: 50%;
+  transform: translate(-50%, -65%) rotate(-45deg) scale(0);
+}
+
+.ease-stepper--vertical .ease-stepper__step--completed::after {
+  transform: translate(-50%, -65%) rotate(-45deg) scale(1);
+}
+
+/* Reposition and reshape connector for vertical layout */
+.ease-stepper--vertical .ease-stepper__connector {
+  flex-grow: 0;
+  width: 4px;
+  height: 2.5rem; /* Space between steps vertically */
+  margin-left: calc(var(--ease-step-size) / 2 - 2px);
+  margin-top: var(--ease-space-1, 0.25rem);
+  margin-bottom: var(--ease-space-1, 0.25rem);
+}
+
+.ease-stepper--vertical .ease-stepper__connector::after {
+  width: 100%;
+  height: 0%;
+  transition: height var(--ease-step-connector-duration) var(--ease-ease, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.ease-stepper--vertical .ease-stepper__step--completed + .ease-stepper__connector::after {
+  height: 100%;
+}
+
+/* ── Keyframes & Animations ────────────────────────────────── */
+@keyframes ease-stepper-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(108, 99, 255, 0.4);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ease-step-color-active) 40%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(108, 99, 255, 0);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--ease-step-color-active) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(108, 99, 255, 0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ease-step-color-active) 0%, transparent);
+  }
+}
+
+/* ── Responsive Styling ────────────────────────────────────── */
+@media (max-width: 768px) {
+  .ease-stepper:not(.ease-stepper--vertical) {
+    gap: var(--ease-space-2, 0.5rem);
+  }
+  
+  .ease-stepper:not(.ease-stepper--vertical) .ease-stepper__step {
+    font-size: var(--ease-text-xs, 0.75rem);
+    min-width: calc(var(--ease-step-size) * 1.6);
+  }
+}
+
+@media (max-width: 480px) {
+  .ease-stepper {
+    --ease-step-size: 2rem;
+  }
+  
+  .ease-stepper:not(.ease-stepper--vertical) .ease-stepper__step {
+    min-width: calc(var(--ease-step-size) * 1.4);
+  }
+}
+
+/* ── Accessibility: Reduced Motion ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ease-stepper__step--active::before,
+  .ease-stepper__step[aria-current="step"]::before {
+    animation: none !important;
+  }
+  
+  .ease-stepper__connector::after {
+    transition: none !important;
+  }
+  
+  .ease-stepper__step::after {
+    transition: none !important;
+  }
+}
